@@ -137,6 +137,20 @@ export async function myReservations(req, res) {
   res.json(reservations);
 }
 
+// DELETE /api/reservations/:id
+// A user cancels (deletes) their own reservation. Deleting the document frees the
+// time slot immediately, since the conflict check in createReservation only counts
+// pending/approved tickets that still exist.
+export async function cancelReservation(req, res) {
+  const reservation = await Reservation.findById(req.params.id);
+  if (!reservation) return res.status(404).json({ error: 'Reservation not found' });
+  if (String(reservation.user) !== String(req.userId)) {
+    return res.status(403).json({ error: 'You can only cancel your own reservations' });
+  }
+  await reservation.deleteOne();
+  res.json({ ok: true });
+}
+
 // GET /api/reservations/calendar?department=BMO&resourceId=...&weeks=4
 // Visible to any authenticated user (both `user` and `admin`). Returns the
 // active resources matching the filter plus every pending/approved reservation

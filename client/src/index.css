@@ -478,6 +478,91 @@ th:last-child {
   margin-top: 0;
 }
 
+/* ---- Reserve: form layout ---- */
+.reserve-card {
+  position: relative;
+  overflow: hidden;
+  border-top: 4px solid var(--accent);
+  max-width: 720px;
+}
+/* Faint campus/institution watermark tucked into the top-right corner. */
+.reserve-card::after {
+  content: '';
+  position: absolute;
+  top: -22px;
+  right: -14px;
+  width: 200px;
+  height: 200px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2315346e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 21h18'/%3E%3Cpath d='M3 10h18'/%3E%3Cpath d='M5 6l7-3 7 3'/%3E%3Cpath d='M4 10v11'/%3E%3Cpath d='M20 10v11'/%3E%3Cpath d='M8 14v3'/%3E%3Cpath d='M12 14v3'/%3E%3Cpath d='M16 14v3'/%3E%3C/svg%3E") center / contain no-repeat;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}
+/* Keep the form content above the watermark. */
+.reserve-card > * {
+  position: relative;
+  z-index: 1;
+}
+.reserve-head {
+  margin-bottom: 0.4rem;
+}
+.reserve-head h2 {
+  margin: 0 0 0.3rem;
+}
+.reserve-head p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+.form-section {
+  border-top: 1px solid var(--border);
+  margin-top: 1.4rem;
+  padding-top: 1.3rem;
+}
+.form-section:first-of-type {
+  border-top: none;
+  margin-top: 1.2rem;
+  padding-top: 0;
+}
+.form-section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.form-section-num {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--navy-dark);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 6px rgba(246, 195, 36, 0.4);
+}
+.form-section-title {
+  margin: 0;
+  font-size: 1.02rem;
+  color: var(--navy-dark);
+}
+.form-section-note {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  background: var(--navy-soft);
+  border-radius: 9px;
+}
+.form-actions {
+  margin-top: 1.4rem;
+  padding-top: 1.3rem;
+  border-top: 1px solid var(--border);
+}
+.btn-sm {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+}
+
 /* ---- Reserve: equipment picker ---- */
 .equip-fieldset {
   border: 1px solid var(--border);

@@ -20,6 +20,8 @@ function equipmentSummary(r) {
 export default function MyReservations() {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cancelingId, setCancelingId] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     api
@@ -28,11 +30,29 @@ export default function MyReservations() {
       .finally(() => setLoading(false));
   }, []);
 
+  async function handleCancel(r) {
+    const verb = r.status === 'rejected' ? 'remove' : 'cancel';
+    if (!window.confirm(`Are you sure you want to ${verb} your reservation for "${r.resourceName}"?`)) {
+      return;
+    }
+    setError(null);
+    setCancelingId(r._id);
+    try {
+      await api.delete(`/reservations/${r._id}`);
+      setReservations((rows) => rows.filter((row) => row._id !== r._id));
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to cancel reservation');
+    } finally {
+      setCancelingId(null);
+    }
+  }
+
   if (loading) return <Spinner label="Loading your reservations…" />;
 
   return (
     <div>
       <h2>My Reservations</h2>
+      {error && <p className="error">{error}</p>}
       {reservations.length === 0 ? (
         <div className="empty-state">
           <p>You haven't made any reservations yet.</p>
@@ -50,6 +70,7 @@ export default function MyReservations() {
                 <th>Reason</th>
                 <th>Status</th>
                 <th>Remarks</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -64,6 +85,19 @@ export default function MyReservations() {
                     <StatusBadge status={r.status} />
                   </td>
                   <td>{r.remarks || '—'}</td>
+                  <td>
+                    <button
+                      className="btn btn-reject btn-sm"
+                      onClick={() => handleCancel(r)}
+                      disabled={cancelingId === r._id}
+                    >
+                      {cancelingId === r._id
+                        ? 'Working…'
+                        : r.status === 'rejected'
+                        ? 'Remove'
+                        : 'Cancel'}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

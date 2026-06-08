@@ -118,106 +118,136 @@ export default function Reserve() {
   }
 
   return (
-    <div className="card">
-      <h2>New Reservation</h2>
-      <p className="muted">Fill out the form to create a reservation ticket.</p>
+    <div className="card reserve-card">
+      <div className="reserve-head">
+        <h2>New Reservation</h2>
+        <p className="muted">
+          Book a room — and any equipment you need in it. Your ticket is submitted for admin
+          approval once you hit <strong>Create Ticket</strong>.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit}>
-        <label>
-          Borrower's Name
-          <input value={common.borrowerName} onChange={updateCommon('borrowerName')} required />
-        </label>
+        <section className="form-section">
+          <div className="form-section-head">
+            <span className="form-section-num">1</span>
+            <h3 className="form-section-title">Who &amp; where</h3>
+          </div>
 
-        <label>
-          Department
-          <select value={department} onChange={(e) => setDepartment(e.target.value)} required>
-            <option value="">Select a department…</option>
-            {DEPARTMENTS.map((d) => (
-              <option key={d.code} value={d.code}>
-                {d.label}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label>
+            Borrower's Name
+            <input value={common.borrowerName} onChange={updateCommon('borrowerName')} required />
+          </label>
 
-        {department && (
-          <>
-            <label>
-              Room
-              <select value={roomId} onChange={(e) => setRoomId(e.target.value)} required>
-                <option value="">Select a room…</option>
-                {roomsByFloor.map(({ floor, items }) => (
-                  <optgroup key={floor} label={floor}>
-                    {items.map((r) => (
-                      <option key={r._id} value={r._id}>
-                        {r.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            </label>
+          <label>
+            Department
+            <select value={department} onChange={(e) => setDepartment(e.target.value)} required>
+              <option value="">Select a department…</option>
+              {DEPARTMENTS.map((d) => (
+                <option key={d.code} value={d.code}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-            <fieldset className="equip-fieldset">
-              <legend>Equipment (optional)</legend>
-              <p className="muted hint">Add any equipment you need in the room, with quantities.</p>
-              <div className="equip-list">
-                {equipment.map((eq) => {
-                  const checked = eq.name in picked;
-                  return (
-                    <div key={eq._id} className={`equip-row ${checked ? 'equip-row-on' : ''}`}>
-                      <label className="equip-check">
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleEquipment(eq.name)}
-                        />
-                        {eq.name}
-                      </label>
-                      {checked && (
-                        <label className="equip-qty">
-                          Qty
+          {department ? (
+            <>
+              <label>
+                Room
+                <select value={roomId} onChange={(e) => setRoomId(e.target.value)} required>
+                  <option value="">Select a room…</option>
+                  {roomsByFloor.map(({ floor, items }) => (
+                    <optgroup key={floor} label={floor}>
+                      {items.map((r) => (
+                        <option key={r._id} value={r._id}>
+                          {r.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </label>
+
+              <fieldset className="equip-fieldset">
+                <legend>Equipment (optional)</legend>
+                <p className="muted hint">Add any equipment you need in the room, with quantities.</p>
+                <div className="equip-list">
+                  {equipment.map((eq) => {
+                    const checked = eq.name in picked;
+                    return (
+                      <div key={eq._id} className={`equip-row ${checked ? 'equip-row-on' : ''}`}>
+                        <label className="equip-check">
                           <input
-                            type="number"
-                            min="1"
-                            value={picked[eq.name]}
-                            onChange={(e) => setEquipmentQty(eq.name, e.target.value)}
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleEquipment(eq.name)}
                           />
+                          {eq.name}
                         </label>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </fieldset>
-          </>
-        )}
+                        {checked && (
+                          <label className="equip-qty">
+                            Qty
+                            <input
+                              type="number"
+                              min="1"
+                              value={picked[eq.name]}
+                              onChange={(e) => setEquipmentQty(eq.name, e.target.value)}
+                            />
+                          </label>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            </>
+          ) : (
+            <p className="muted hint form-section-note">
+              Pick a department to choose a room and equipment.
+            </p>
+          )}
+        </section>
 
-        <div className="row">
-          <label>
-            Start date & time
-            <input
-              type="datetime-local"
-              value={common.startDateTime}
-              onChange={updateCommon('startDateTime')}
-              required
-            />
-          </label>
-          <label>
-            End date & time
-            <input
-              type="datetime-local"
-              value={common.endDateTime}
-              onChange={updateCommon('endDateTime')}
-              required
-            />
-          </label>
-        </div>
+        <section className="form-section">
+          <div className="form-section-head">
+            <span className="form-section-num">2</span>
+            <h3 className="form-section-title">When</h3>
+          </div>
 
-        <label>
-          Reason for reservation
-          <textarea value={common.reason} onChange={updateCommon('reason')} rows={3} required />
-        </label>
+          <div className="row">
+            <label>
+              Start date &amp; time
+              <input
+                type="datetime-local"
+                value={common.startDateTime}
+                onChange={updateCommon('startDateTime')}
+                required
+              />
+            </label>
+            <label>
+              End date &amp; time
+              <input
+                type="datetime-local"
+                value={common.endDateTime}
+                onChange={updateCommon('endDateTime')}
+                required
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="form-section">
+          <div className="form-section-head">
+            <span className="form-section-num">3</span>
+            <h3 className="form-section-title">Why</h3>
+          </div>
+
+          <label>
+            Reason for reservation
+            <textarea value={common.reason} onChange={updateCommon('reason')} rows={3} required />
+          </label>
+        </section>
 
         {message &&
           (message.kind === 'conflict' ? (
@@ -228,9 +258,11 @@ export default function Reserve() {
             <p className={message.kind === 'success' ? 'success' : 'error'}>{message.text}</p>
           ))}
 
-        <button type="submit" className="btn" disabled={submitting}>
-          {submitting ? 'Submitting…' : 'Submit & Create Ticket'}
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="btn" disabled={submitting}>
+            {submitting ? 'Submitting…' : 'Submit & Create Ticket'}
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createReservation,
   myReservations,
+  cancelReservation,
   calendarReservations,
   listReservations,
   decideReservation,
@@ -13,6 +14,7 @@ const router = Router();
 
 router.post('/', requireAuth, asyncHandler(createReservation));
 router.get('/mine', requireAuth, asyncHandler(myReservations));
+router.delete('/:id', requireAuth, asyncHandler(cancelReservation));
 router.get('/calendar', requireAuth, asyncHandler(calendarReservations));
 router.get('/', requireAuth, requireAdmin, asyncHandler(listReservations));
 router.patch('/:id/decision', requireAuth, requireAdmin, asyncHandler(decideReservation));
