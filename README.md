@@ -1,7 +1,8 @@
-# Room & Equipment Reservation System
+# Room & Equipment Reservation System (RamReserve)
 
-A MERN (MongoDB, Express, React, Node) application for reserving technical equipment
-(ITRO) and rooms/facilities (BMO) for events.
+A web app for reserving technical equipment (ITRO) and rooms/facilities (BMO) for
+events. It pairs a **React** frontend with a **Python (Flask)** API and a
+**MongoDB** database.
 
 ## Features
 
@@ -12,43 +13,51 @@ A MERN (MongoDB, Express, React, Node) application for reserving technical equip
   - **ITRO** (Information Technology Resource Office): studio & laboratory rooms (Video,
     Animation, Foley/Music Recording, Game, Physics, Chemistry, …) plus equipment —
     Cameras, Cables, Lights, Monitors.
-- **Two kinds of ticket** (a ticket is one or the other):
-  - **Room** — pick a department → floor → room. Single-select, with a time-overlap
-    conflict check so a room can't be double-booked.
-  - **Equipment** — check the items you need and enter a quantity per item. Quantities are
-    requested amounts (no stock cap); the admin approves or rejects.
-- **User dashboard**: login, a homepage explaining the reservation steps, and a form to
-  create a reservation ticket (borrower, room or equipment, date/time, reason).
-- **Availability calendar**: a live 4-week grid, visible to both users and admins, showing
-  reserved vs. available **rooms** (auto-refreshes every 30s).
-- **Admin dashboard**: view all pending tickets, approve/reject them, and add remarks.
-- **JWT auth** with `user` and `admin` roles, bcrypt-hashed passwords.
+- **Reservation tickets** — pick a department → room, optionally check equipment with a
+  quantity per item, set a date/time window and a reason. A time-overlap **conflict check**
+  stops a room from being double-booked.
+- **User dashboard** — log in, see the steps, create a ticket, view **My Reservations**, and
+  **cancel/delete** your own reservations (which frees the time slot immediately).
+- **Availability calendar** — a live 4-week grid of reserved vs. available rooms
+  (auto-refreshes every 30s). Days with many bookings show an expandable **"+N more"**
+  control. Admins can click a day to open/close a room for bookings.
+- **Admin dashboard** — review tickets and approve/reject with remarks. Tickets are
+  **grouped by department** (collapsible, sticky headers), **filterable by department,
+  floor, and room**, and each shows its **submission date/time**.
+- **JWT auth** with `user` and `admin` roles; passwords hashed with **bcrypt**.
 
 ## Stack
 
-| Layer    | Tech                                  |
-|----------|---------------------------------------|
-| Frontend | React 18 + Vite, React Router, Axios  |
-| Backend  | Node + Express, Mongoose              |
-| Database | MongoDB (via Docker)                  |
-| Auth     | JWT + bcryptjs                        |
+| Layer    | Tech                                          |
+|----------|-----------------------------------------------|
+| Frontend | React 18 + Vite 5, React Router 6, Axios      |
+| Backend  | Python 3 + Flask (Flask-CORS)                 |
+| Database | MongoDB 7 (accessed with PyMongo)             |
+| Auth     | PyJWT + bcrypt                                |
 
-## Requirements
+## Requirements (tools)
 
 | Tool | Version | Notes |
 |------|---------|-------|
-| **Node.js** | 18+ (18.20 or 20 LTS) | runs the API and builds the client; Vite 5 & Mongoose 8 need Node 18+ |
-| **npm** | 9–10 (ships with Node) | installs dependencies |
-| **MongoDB** | 7 | via the included Docker setup, a local install, or a MongoDB Atlas cluster |
-| **Docker + Compose** | recent | only needed if you run MongoDB through `docker-compose.yml` |
+| **Python** | 3.10+ | runs the Flask API and the seed script |
+| **pip** + **venv** | bundled with Python | install backend dependencies into a virtual env |
+| **Node.js** | 18+ (18.20 or 20 LTS) | builds & serves the React client (Vite 5 needs Node 18+) |
+| **npm** | 9–10 (ships with Node) | installs client dependencies |
+| **MongoDB** | 7 | via the included Docker setup, a local install, or MongoDB Atlas |
+| **Docker + Compose** | recent | only if you run MongoDB through `docker-compose.yml` |
 | A modern web browser | — | to view the app at `localhost:5173` |
 
-**Ports used (must be free):** `27017` (MongoDB), `5000` (API), `5173` (client dev server).
+**Ports used (must be free):** `27017` (MongoDB), `5000` (Flask API), `5173` (client dev server).
 
-All Node dependencies are installed automatically by `npm install` (see Quick start). Before
-running, configure `server/.env` from `server/.env.example` — set at least `MONGODB_URI` and a
-strong `JWT_SECRET`. If you use a non-Docker database (local or Atlas), just point `MONGODB_URI`
-at it and skip the Docker step.
+### Python dependencies (`server-python/requirements.txt`)
+
+`Flask`, `flask-cors`, `pymongo`, `PyJWT`, `bcrypt`, `python-dotenv` — all installed by
+`pip install -r requirements.txt`.
+
+### Node dependencies (`client/package.json`)
+
+`react`, `react-dom`, `react-router-dom`, `axios` (+ `vite`, `@vitejs/plugin-react`) — all
+installed by `npm install`.
 
 ## Quick start
 
@@ -58,23 +67,43 @@ at it and skip the Docker step.
 docker compose up -d
 ```
 
-### 2. Backend
+(Or use a local MongoDB / Atlas cluster and point `MONGODB_URI` at it — see below.)
+
+### 2. Backend (Python / Flask)
 
 ```bash
-cd server
-npm install
-cp .env.example .env      # adjust if needed
-npm run seed              # populates catalog + demo accounts
-npm run dev               # http://localhost:5000
+cd server-python
+
+python3 -m venv .venv               # create a virtual environment
+source .venv/bin/activate           # Windows: .venv\Scripts\activate
+pip install -r requirements.txt     # install dependencies
+
+cp .env.example .env                # then set MONGODB_URI / JWT_SECRET as needed
+
+python seed.py                      # populate catalog + demo accounts
+python app.py                       # http://localhost:5000
 ```
 
-### 3. Frontend
+### 3. Frontend (React)
 
 ```bash
 cd client
 npm install
-npm run dev               # http://localhost:5173
+npm run dev                         # http://localhost:5173
 ```
+
+The client's Vite dev server proxies `/api` to `http://localhost:5000`, so no client
+configuration is needed.
+
+## Configuration (`server-python/.env`)
+
+| Variable | Example | Purpose |
+|----------|---------|---------|
+| `PORT` | `5000` | port the Flask API listens on |
+| `MONGODB_URI` | `mongodb://localhost:27017/reservations` | MongoDB connection string |
+| `JWT_SECRET` | `change-me-to-a-long-random-string` | secret used to sign JWTs |
+| `JWT_EXPIRES_IN_DAYS` | `7` | how long a login stays valid |
+| `CLIENT_ORIGIN` | `http://localhost:5173` | allowed CORS origin |
 
 ## Demo accounts (after seeding)
 
@@ -92,8 +121,33 @@ npm run dev               # http://localhost:5173
 | GET    | `/api/auth/me`                     | user   | Current user                      |
 | GET    | `/api/resources`                   | user   | List resources (filter by `department`, `kind`) |
 | GET    | `/api/resources/catalog`           | user   | Per department: rooms by floor + equipment list |
-| POST   | `/api/reservations`                | user   | Create a ticket (`kind: 'room' \| 'equipment'`) |
+| POST   | `/api/reservations`                | user   | Create a ticket (room + optional equipment) |
 | GET    | `/api/reservations/mine`           | user   | Current user's reservations       |
+| DELETE | `/api/reservations/<id>`           | user   | Cancel/delete own reservation     |
 | GET    | `/api/reservations/calendar`       | user   | Rooms + room bookings for the next N weeks (calendar) |
-| GET    | `/api/reservations`                | admin  | All reservations (filter status)  |
-| PATCH  | `/api/reservations/:id/decision`   | admin  | Approve/reject + remarks          |
+| GET    | `/api/reservations`                | admin  | All reservations (filter status / department) |
+| PATCH  | `/api/reservations/<id>/decision`  | admin  | Approve/reject + remarks          |
+| PATCH  | `/api/availability`                | admin  | Open/close a room for a given day |
+
+## Project layout
+
+```
+reservation-system/
+├── docker-compose.yml        # MongoDB 7
+├── client/                   # React 18 + Vite frontend (port 5173)
+│   └── src/
+│       ├── pages/            # Login, Register, Home, Reserve, Calendar,
+│       │                     #   MyReservations, AdminDashboard
+│       ├── components/       # Navbar, Footer, ProtectedRoute, Spinner
+│       └── context/          # AuthContext
+└── server-python/            # Python / Flask API (port 5000)
+    ├── app.py                # routes, auth (JWT/bcrypt), MongoDB access
+    ├── seed.py               # populate catalog + demo accounts
+    ├── catalog.py            # room/equipment catalog data
+    ├── requirements.txt      # Python dependencies
+    └── .env                  # configuration
+```
+
+> A legacy Node/Express version of the same API lives in `server/` (run with
+> `npm install && npm run dev`). The Python backend in `server-python/` is the current one;
+> both speak the identical API, so the React client works with either.

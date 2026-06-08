@@ -31,7 +31,7 @@ export default function Home() {
       <section className="hero">
         <h1>Welcome to RamReserve, {user?.name}</h1>
         <p className="muted">
-          Reserve peripherals, equipment, and rooms for your events — all in one place.
+          Reserve facilities, equipment, and rooms for your events — all in one place.
         </p>
       </section>
 

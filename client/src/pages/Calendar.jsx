@@ -50,6 +50,7 @@ export default function Calendar() {
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState(null);
   const [error, setError] = useState(null);
+  const [expandedDays, setExpandedDays] = useState(() => new Set()); // day keys showing all events
 
   const today = useMemo(() => {
     const t = new Date();
@@ -147,13 +148,22 @@ export default function Calendar() {
     }
   }
 
+  // Expand/collapse a day that has more bookings than fit (the "+N more" toggle).
+  function toggleDayExpanded(key) {
+    setExpandedDays((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }
+
   return (
     <div>
       <div className="cal-header">
         <div>
           <h2>Availability Calendar</h2>
           <p className="muted">
-            Reserved vs. available across the next {WEEKS} weeks. Updates automatically.
+            All available rooms in the next {WEEKS} weeks. Updates automatically.
           </p>
         </div>
         <div className="cal-live">
@@ -233,16 +243,19 @@ export default function Calendar() {
               else availability = { cls: 'partial', label: `${evts.length}/${qty} reserved` };
             }
             const canToggle = isAdmin && !!selectedResource;
+            const dayKey = day.toISOString();
+            const isExpanded = expandedDays.has(dayKey);
 
             return (
               <div
-                key={day.toISOString()}
+                key={dayKey}
                 className={[
                   'cal-day',
                   isToday ? 'cal-today' : '',
                   isPast ? 'cal-past' : '',
                   availability ? `cal-day-${availability.cls}` : '',
                   canToggle ? 'cal-day-clickable' : '',
+                  isExpanded ? 'cal-day-expanded' : '',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -277,7 +290,7 @@ export default function Calendar() {
                   </div>
                 ) : (
                   <div className="cal-day-body">
-                    {evts.slice(0, MAX_CHIPS).map((r) => (
+                    {(isExpanded ? evts : evts.slice(0, MAX_CHIPS)).map((r) => (
                       <div
                         key={r._id}
                         className={`cal-event cal-event-${r.status}`}
@@ -290,7 +303,17 @@ export default function Calendar() {
                       </div>
                     ))}
                     {evts.length > MAX_CHIPS && (
-                      <div className="cal-more">+{evts.length - MAX_CHIPS} more</div>
+                      <button
+                        type="button"
+                        className="cal-more cal-more-btn"
+                        aria-expanded={isExpanded}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleDayExpanded(dayKey);
+                        }}
+                      >
+                        {isExpanded ? 'Show less ▴' : `+${evts.length - MAX_CHIPS} more ▾`}
+                      </button>
                     )}
                   </div>
                 )}

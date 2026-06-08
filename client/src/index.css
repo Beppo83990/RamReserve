@@ -158,15 +158,6 @@ a:hover {
   position: relative;
   overflow: hidden;
 }
-.hero::after {
-  content: '';
-  position: absolute;
-  right: -40px;
-  top: -40px;
-  width: 160px;
-  height: 160px;
-  background: radial-gradient(circle, rgba(246, 195, 36, 0.35) 0%, rgba(246, 195, 36, 0) 70%);
-}
 .hero h1 {
   margin: 0 0 0.4rem;
   font-size: 1.9rem;
@@ -476,6 +467,89 @@ th:last-child {
   flex: 1;
   min-width: 180px;
   margin-top: 0;
+}
+.ticket-submitted {
+  font-size: 0.8rem;
+  margin-top: 0.55rem !important;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--border);
+}
+
+/* ---- Admin dashboard: controls + grouped sections ---- */
+.admin-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.admin-controls .filter-bar {
+  margin: 1rem 0 0.4rem;
+}
+.admin-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.admin-filters label {
+  flex: 1;
+  min-width: 180px;
+  margin-bottom: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--navy-dark);
+}
+.admin-filters select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.ticket-group {
+  margin-bottom: 1.6rem;
+}
+/* Sticky, clickable section header — stays visible while scrolling and
+   toggles its department open/closed. */
+.ticket-group-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  margin: 0 0 0.85rem;
+  padding: 0.5rem 0.2rem 0.45rem;
+  background: var(--bg);
+  border: none;
+  border-bottom: 2px solid var(--accent);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+.ticket-group-head h3 {
+  margin: 0;
+  color: var(--navy);
+}
+.ticket-group-head:hover h3 {
+  color: var(--navy-dark);
+}
+.ticket-group-toggle {
+  color: var(--navy);
+  font-size: 0.85rem;
+  transition: transform 0.15s;
+}
+.ticket-group-toggle.is-collapsed {
+  transform: rotate(-90deg);
+}
+.ticket-group-count {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--navy-dark);
+  background: var(--navy-soft);
+  padding: 0.18rem 0.65rem;
+  border-radius: 999px;
+}
+.ticket-group-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ---- Reserve: form layout ---- */
@@ -828,6 +902,35 @@ th:last-child {
   font-size: 0.7rem;
   color: var(--muted);
   padding-left: 5px;
+}
+/* Clickable "+N more" / "Show less" disclosure for days with many bookings. */
+.cal-more-btn {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  margin-top: 1px;
+  padding: 1px 5px;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--navy);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.cal-more-btn:hover {
+  background: var(--navy-soft);
+  text-decoration: underline;
+}
+.cal-more-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+/* An expanded day grows to fit all its bookings instead of clipping them. */
+.cal-day-expanded {
+  overflow: visible;
+  z-index: 2;
 }
 .avail-badge {
   align-self: flex-start;
