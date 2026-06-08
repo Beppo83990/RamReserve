@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import PrivacyNotice from '../components/PrivacyNotice.jsx';
 import logo from '../assets/logo.png';
 
 export default function Login() {
@@ -44,6 +45,7 @@ export default function Login() {
           Login
         </button>
       </form>
+      <PrivacyNotice />
       <p className="muted">
         No account? <Link to="/register">Register</Link>
       </p>
